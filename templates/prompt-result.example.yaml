@@ -1,0 +1,31 @@
+# PromptResult v1.2 — Standard Output Patch (example)
+# See pps_v_1.md §4
+
+prompt_result:
+  meta:
+    prompt_id: "APP/01_mvp-cutter"
+    prompt_version: "1.2"
+    iteration_id: "2026-01-28T00:00:00-06:00"
+    run_id: "RUN-000001"
+    applied_to_freeze_label: ""
+
+  context_updates: {}
+
+  appendices_updates:
+    added: []
+    updated: []
+
+  state_updates:
+    decision_log_added: []
+    open_questions_added: []
+    changelog_added: []
+    change_requests_added: []
+
+  gate_result:
+    gate_id: "GATE_1_MVP_BOUNDED"
+    status: "pass"
+    reason: ""
+    blockers: []
+    next_actions: []
+
+  warnings: []

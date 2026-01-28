@@ -1,0 +1,55 @@
+# PPS v1.2 — Standard Input Envelope (example)
+# See pps_v_1.md §2
+
+pps_version: "1.2"
+
+meta:
+  prompt_id: "APP/00_placeholder"
+  prompt_version: "1.2"
+  iteration_id: "2026-01-28T00:00:00-06:00"
+  run_id: "RUN-000001"
+  depth_mode: "MVP"
+  stack_prefs: []
+  output_mode: "delta"
+  output_format: "prompt_result_v1.2"
+  gate_target: "N/A"
+  token_hygiene:
+    context_block_policy: "summary_only"
+    large_artifact_policy: "appendix_only"
+    appendix_threshold_chars: 4000
+
+constraints:
+  team_size: ""
+  timeline: ""
+  budget: ""
+  compliance_privacy: ""
+  hosting_limits: ""
+
+project:
+  name: ""
+  brief: ""
+  domain: ""
+  users: ""
+
+context_block: |-
+  (PROJECT_CONTEXT_BLOCK summary)
+
+appendices_index:
+  - id: "A1_openapi.yaml"
+    kind: "openapi"
+    summary: ""
+    location: ""
+    produced_by: ""
+    updated_on: "2026-01-28"
+
+state:
+  decision_log: []
+  open_questions: []
+  changelog: []
+  change_requests: []
+  contract_freeze_ref:
+    label: ""
+    openapi_appendix_id: ""
+    updated_on: ""
+
+focus: {}
