@@ -3,7 +3,7 @@
  * See pps_v_1.md §8
  */
 
-export { merge, initialStateFromEnvelope } from "./merge.js";
+export { merge, initialStateFromEnvelope, envelopeFromState } from "./merge.js";
 export type {
   MergeInput,
   MergeResult,

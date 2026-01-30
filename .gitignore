@@ -32,3 +32,6 @@ coverage/
 # Environment
 .env
 .env.local
+
+# Demo state
+.demo-state.json

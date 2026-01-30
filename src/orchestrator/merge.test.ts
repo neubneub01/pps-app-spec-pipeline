@@ -2,7 +2,7 @@
  * OMS v1.0 merge — basic tests
  */
 
-import { merge, initialStateFromEnvelope } from "./merge.js";
+import { merge, initialStateFromEnvelope, envelopeFromState } from "./merge.js";
 import type { PPSEnvelope } from "../schemas/pps.js";
 import type { PromptResult } from "../schemas/prompt-result.js";
 import { createDefaultMeta } from "../schemas/pps.js";
@@ -91,5 +91,26 @@ describe("initialStateFromEnvelope", () => {
     expect(state.appendices_index).toEqual([]);
     expect(state.state.decision_log).toEqual([]);
     expect(state.applied_index).toEqual([]);
+  });
+});
+
+describe("envelopeFromState", () => {
+  it("builds next envelope from pipeline state and meta overrides", () => {
+    const base = minimalEnvelope();
+    const result = minimalResult();
+    result.context_updates = { context_block: "updated summary" };
+    const out = merge({ envelope: base, result, applied_index: [] });
+    expect(out.ok).toBe(true);
+    const state = out.state!;
+    const next = envelopeFromState(base, state, {
+      prompt_id: "APP/02_ux-flows",
+      run_id: "RUN-002",
+      gate_target: "GATE_2_TRACEABILITY_FLOW_SCREEN_STATE",
+    }, { foo: "bar" });
+    expect(next.context_block).toBe("updated summary");
+    expect(next.meta.prompt_id).toBe("APP/02_ux-flows");
+    expect(next.meta.run_id).toBe("RUN-002");
+    expect(next.meta.gate_target).toBe("GATE_2_TRACEABILITY_FLOW_SCREEN_STATE");
+    expect(next.focus).toEqual({ foo: "bar" });
   });
 });

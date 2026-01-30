@@ -3,7 +3,8 @@
  * See pps_v_1.md §8.2–8.9
  */
 
-import { OUTPUT_FORMAT } from "../schemas/pps.js";
+import { OUTPUT_FORMAT, createDefaultMeta } from "../schemas/pps.js";
+import type { PPSEnvelope, PPSMeta } from "../schemas/pps.js";
 import type { PromptResult } from "../schemas/prompt-result.js";
 import {
   GATE_IDS,
@@ -82,8 +83,9 @@ function validateShape(result: PromptResult): string[] {
 
 function validateOutputFormat(result: PromptResult): string[] {
   const errs: string[] = [];
-  if ((result as Record<string, unknown>).output_format !== undefined) {
-    const of = (result as Record<string, unknown>).output_format;
+  const r = result as unknown as Record<string, unknown>;
+  if (r.output_format !== undefined) {
+    const of = r.output_format;
     if (of !== OUTPUT_FORMAT) {
       errs.push(`output_format must be "${OUTPUT_FORMAT}"`);
     }
@@ -266,6 +268,39 @@ export function initialStateFromEnvelope(envelope: MergeInput["envelope"]): Pipe
       },
     },
     applied_index: [],
+  };
+}
+
+/**
+ * Build next PPS envelope from base + pipeline state + meta overrides + focus.
+ * Use when running a sequence: after merge, build envelope for the next prompt.
+ */
+export function envelopeFromState(
+  base: PPSEnvelope,
+  pipelineState: PipelineState,
+  metaOverrides: Partial<PPSMeta> & { prompt_id: string; run_id: string },
+  focus: Record<string, unknown>
+): PPSEnvelope {
+  const contextBlock =
+    (typeof pipelineState.context?.context_block === "string"
+      ? pipelineState.context.context_block
+      : "") ?? "";
+  return {
+    ...base,
+    context_block: contextBlock,
+    appendices_index: [...pipelineState.appendices_index],
+    state: {
+      decision_log: [...pipelineState.state.decision_log],
+      open_questions: [...pipelineState.state.open_questions],
+      changelog: [...pipelineState.state.changelog],
+      change_requests: [...pipelineState.state.change_requests],
+      contract_freeze_ref: { ...pipelineState.state.contract_freeze_ref },
+    },
+    meta: createDefaultMeta({
+      ...base.meta,
+      ...metaOverrides,
+    }),
+    focus: { ...focus },
   };
 }
 

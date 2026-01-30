@@ -4,15 +4,21 @@
   "description": "PPS v1.2 App Spec Pipeline — Canonical System (contract-first, gate-driven)",
   "type": "module",
   "main": "dist/index.js",
+  "bin": {
+    "pps": "dist/cli.js"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
+    "demo": "node dist/demo.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc -p tsconfig.build.json --noEmit"
   },
   "keywords": ["pps", "app-spec", "orchestrator", "gates"],
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",

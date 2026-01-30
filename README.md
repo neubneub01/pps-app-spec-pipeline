@@ -23,7 +23,10 @@ src/
   gates.ts       # Gate IDs and ownership
   orchestrator/  # OMS v1.0 merge algorithm
   validate.ts    # PPS & result validation
-  io.ts          # YAML load/save for envelope & result
+  io.ts          # YAML load/save; state load/save (JSON)
+  stubs.ts       # Stub PromptResult for APP/01–08 (demos, tests)
+  cli.ts         # CLI (validate, merge)
+  demo.ts        # Demo pipeline run (APP/01 -> APP/02)
   index.ts       # Public API
 templates/       # Example PPS envelope & PromptResult YAML
 pps_v_1.md       # Full spec (plan)
@@ -59,13 +62,54 @@ if (out.ok) {
 }
 ```
 
-### Load from YAML
+### Load from YAML / state
 
 ```ts
-import { loadEnvelope, loadPromptResult } from "pps-app-spec-pipeline";
+import { loadEnvelope, loadPromptResult, loadState, saveState } from "pps-app-spec-pipeline";
 
 const { envelope, validation } = loadEnvelope("path/to/pps.yaml");
 const { result, validation: v2 } = loadPromptResult("path/to/result.yaml");
+const state = loadState("path/to/state.json");
+saveState("path/to/state.json", state);
+```
+
+### Build next envelope from pipeline state
+
+```ts
+import { envelopeFromState } from "pps-app-spec-pipeline";
+
+const nextEnvelope = envelopeFromState(baseEnvelope, pipelineState, {
+  prompt_id: "APP/02_ux-flows",
+  run_id: "RUN-000002",
+  gate_target: "GATE_2_TRACEABILITY_FLOW_SCREEN_STATE",
+}, focus);
+```
+
+### Stub results (demos / tests)
+
+```ts
+import { stubResult } from "pps-app-spec-pipeline";
+
+const result = stubResult({
+  prompt_id: "APP/01_mvp-cutter",
+  run_id: "RUN-001",
+  gate_target: "GATE_1_MVP_BOUNDED",
+  status: "pass",
+});
+```
+
+## CLI
+
+After `npm run build`, run via `node dist/cli.js` or `npx pps-app-spec-pipeline`:
+
+```bash
+# Validate envelope or result
+node dist/cli.js validate envelope path/to/pps.yaml
+node dist/cli.js validate result path/to/result.yaml
+
+# Merge result into pipeline state (optional state in/out)
+node dist/cli.js merge path/to/envelope.yaml path/to/result.yaml
+node dist/cli.js merge envelope.yaml result.yaml --state-in state.json --state-out state.json
 ```
 
 ## Gates
@@ -84,9 +128,11 @@ const { result, validation: v2 } = loadPromptResult("path/to/result.yaml");
 
 - `npm install` — install dependencies (run first)
 - `npm run build` — compile TypeScript to `dist/`
+- `npm run demo` — run demo pipeline (APP/01 → APP/02, stub results, writes `.demo-state.json`)
 - `npm run lint` — `tsc --noEmit`
 - `npm run test` — run Jest tests
 - `npm run start` — run `dist/index.js`
+- `pps` — CLI (`bin` entry; use `node dist/cli.js` or `npx pps` after build)
 
 ## Spec reference
 
