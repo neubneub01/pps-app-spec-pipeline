@@ -32,9 +32,51 @@ templates/       # Example PPS envelope & PromptResult YAML
 pps_v_1.md       # Full spec (plan)
 ```
 
+## Quick Start (Automated)
+
+Run the full pipeline with one command:
+
+```bash
+npm install
+npm run build
+
+# Set your Anthropic API key
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Run the pipeline
+pps run --brief "A todo app where users can sign up, log in, and manage their personal todo lists" --api-key "$ANTHROPIC_API_KEY"
+```
+
+This will:
+1. Call Claude API 8 times (APP/01 → APP/08)
+2. Merge each result automatically
+3. Export artifacts to `./spec/`:
+   - `openapi.yaml` (API contract)
+   - `migrations.sql` (database schema)
+   - `decisions.md` (decision log)
+   - `CHANGELOG.md` (changes)
+   - `state.json` (full pipeline state)
+
 ## Usage
 
-### Validate envelope or result
+### Automated Pipeline (CLI)
+
+```bash
+pps run --brief "your project idea" --api-key "sk-ant-..." [options]
+
+Options:
+  --name <name>       Project name (default: from brief)
+  --domain <domain>   Domain (default: general)
+  --team <size>       Team size (default: 2)
+  --timeline <time>   Timeline (default: 8 weeks)
+  --budget <budget>   Budget (default: startup)
+  --output <dir>      Output directory (default: ./spec)
+  --model <model>     Claude model (default: claude-3-5-sonnet-20241022)
+```
+
+### Manual Pipeline (Programmatic)
+
+#### Validate envelope or result
 
 ```ts
 import { validatePPSEnvelope, validatePromptResult } from "pps-app-spec-pipeline";
@@ -126,13 +168,19 @@ node dist/cli.js merge envelope.yaml result.yaml --state-in state.json --state-o
 
 ## Scripts
 
-- `npm install` — install dependencies (run first)
-- `npm run build` — compile TypeScript to `dist/`
-- `npm run demo` — run demo pipeline (APP/01 → APP/02, stub results, writes `.demo-state.json`)
-- `npm run lint` — `tsc --noEmit`
-- `npm run test` — run Jest tests
-- `npm run start` — run `dist/index.js`
-- `pps` — CLI (`bin` entry; use `node dist/cli.js` or `npx pps` after build)
+```bash
+npm install        # Install dependencies
+npm run build      # Compile TypeScript
+npm run test       # Run Jest tests
+npm run demo       # Run demo pipeline (APP/01 -> APP/02 with stubs)
+npm run lint       # Type-check without emitting files
+
+# After build, use the CLI:
+pps validate envelope <path>    # Validate PPS envelope
+pps validate result <path>      # Validate PromptResult
+pps merge <env> <result>        # Merge result into state
+pps run --brief "..." --api-key "..."  # Run full automated pipeline
+```
 
 ## Spec reference
 

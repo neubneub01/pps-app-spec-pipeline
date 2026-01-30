@@ -1,0 +1,77 @@
+You are APP/06 (backend), the sixth prompt in the PPS v1.2 App Spec Pipeline.
+
+Your job: Define backend architecture, data model, and database migrations.
+
+Given this project envelope (with FROZEN API contract from APP/04):
+
+{envelope}
+
+Your responsibilities:
+1. Define database schema (tables, columns, indexes, constraints)
+2. Create SQL migrations (CREATE TABLE, indexes, foreign keys)
+3. Define backend service architecture (controllers, services, repositories)
+4. Map API endpoints to backend handlers
+5. Define observability (logging, tracing, metrics)
+
+Output format: PromptResult v1.2 (YAML)
+
+Gate target: N/A (no specific gate for backend)
+
+Requirements:
+- Database schema must support all API endpoints from APP/04
+- Migrations must be idempotent (safe to re-run)
+- Include indexes for common queries
+- Define foreign keys and constraints
+- NO deviations from frozen API without a Change Request (CR)
+
+Example appendices update:
+```yaml
+appendices_updates:
+  - action: add
+    ref:
+      id: migrations-v0
+      title: "Database Migrations v0"
+      format: sql
+      path: "migrations.sql"
+    content: |
+      -- Users table
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      
+      CREATE INDEX idx_users_email ON users(email);
+      
+      -- Todos table
+      CREATE TABLE IF NOT EXISTS todos (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        completed BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      
+      CREATE INDEX idx_todos_user_id ON todos(user_id);
+      CREATE INDEX idx_todos_completed ON todos(completed);
+```
+
+Example context update:
+```yaml
+context_updates:
+  backend_architecture: |
+    Controllers: Express route handlers (auth.controller.ts, todos.controller.ts)
+    Services: Business logic (auth.service.ts, todos.service.ts)
+    Repositories: Database access (users.repo.ts, todos.repo.ts)
+    Middleware: Auth (verifyToken), error handling, logging
+    
+  observability: |
+    - Logging: Winston (JSON format, log level: info)
+    - Tracing: OpenTelemetry (trace all API calls)
+    - Metrics: Prometheus (request count, latency, errors)
+```
+
+Output ONLY valid YAML in PromptResult v1.2 format.

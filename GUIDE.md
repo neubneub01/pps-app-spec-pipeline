@@ -245,9 +245,49 @@ Tracks what changed between iterations (e.g. "Added rate limiting to API").
 
 ## How to Use It
 
-### Current State: Manual (Option 1)
+### ✅ Automated (Recommended)
 
-Right now, you have to **manually** run each step:
+**This is now built and ready to use!**
+
+```bash
+# 1. Install and build
+npm install
+npm run build
+
+# 2. Get your Anthropic API key from https://console.anthropic.com/
+
+# 3. Run the pipeline
+pps run --brief "A todo app where users can sign up, log in, and manage their personal todo lists" --api-key "sk-ant-..."
+
+# 4. Check the output in ./spec/
+ls spec/
+# openapi.yaml, migrations.sql, decisions.md, CHANGELOG.md, state.json
+```
+
+**What happens:**
+1. Calls Claude API 8 times (APP/01 → APP/08)
+2. Merges each result automatically
+3. Exports artifacts to `./spec/`
+
+**Cost:** ~$0.50-$2 per full run (depending on project complexity)
+
+**Options:**
+```bash
+pps run --brief "..." --api-key "..." \
+  --name "My App" \
+  --domain "e-commerce" \
+  --team 3 \
+  --timeline "12 weeks" \
+  --budget "funded" \
+  --output "./my-spec" \
+  --model "claude-3-5-sonnet-20241022"
+```
+
+---
+
+### Manual (Advanced)
+
+If you want full control over each step:
 
 #### Step 1: Fill in project brief
 Edit `templates/pps-envelope.example.yaml`:
@@ -282,27 +322,6 @@ Use `envelopeFromState` to build envelope for APP/02 (see README for code exampl
 
 #### Step 6: Repeat for APP/02 → APP/08
 Repeat steps 2-5 for each prompt.
-
----
-
-### Future State: Automated (Option 2)
-
-**Not built yet**, but would work like this:
-
-```bash
-pps run --brief "build a todo app with auth" --api-key "sk-..."
-```
-
-This would:
-1. Call Claude API 8 times (APP/01 → APP/08)
-2. Merge each result automatically
-3. Output final spec (`state.json`, `openapi.yaml`, `migrations.sql`)
-
-**To build this**, you'd need:
-- LLM API integration (`src/llm.ts`)
-- Runner script (`src/runner.ts`)
-- Prompt templates (`prompts/APP_01.txt`, etc.)
-- CLI command (`pps run`)
 
 ---
 
@@ -402,18 +421,29 @@ After APP/04, the API contract is **frozen** (labeled `v0`). Frontend (APP/05) a
 
 ## Next Steps
 
-### To use manually (now):
-1. Fill in `templates/pps-envelope.example.yaml` with your project brief
-2. Send to Claude/ChatGPT with APP/01 prompt
-3. Save response as `result-01.yaml`
-4. Run `node dist/cli.js merge envelope.yaml result-01.yaml --state-out state.json`
-5. Repeat for APP/02 → APP/08
+### To use (automated):
+```bash
+# 1. Install
+npm install && npm run build
 
-### To automate (future):
-1. Add LLM API integration (`src/llm.ts`)
-2. Add runner script (`src/runner.ts`)
-3. Add prompt templates (`prompts/`)
-4. Add CLI command: `pps run --brief "..."`
+# 2. Get API key from https://console.anthropic.com/
+
+# 3. Run
+pps run --brief "your project idea" --api-key "sk-ant-..."
+
+# 4. Review output
+ls spec/
+cat spec/openapi.yaml
+cat spec/migrations.sql
+cat spec/decisions.md
+```
+
+### To use (manual):
+1. Fill in `templates/pps-envelope.example.yaml` with your project brief
+2. Send to Claude/ChatGPT with APP/01 prompt (see `prompts/APP_01_mvp-cutter.txt`)
+3. Save response as `result-01.yaml`
+4. Run `pps merge envelope.yaml result-01.yaml --state-out state.json`
+5. Repeat for APP/02 → APP/08
 
 ---
 

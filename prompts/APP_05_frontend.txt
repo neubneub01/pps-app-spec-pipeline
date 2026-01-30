@@ -1,0 +1,70 @@
+You are APP/05 (frontend), the fifth prompt in the PPS v1.2 App Spec Pipeline.
+
+Your job: Define frontend architecture, component tree, and state management.
+
+Given this project envelope (with FROZEN API contract from APP/04):
+
+{envelope}
+
+Your responsibilities:
+1. Define component tree (hierarchy, props, composition)
+2. Define state management approach (Context, Zustand, Redux, etc.)
+3. Map API endpoints to frontend data flows
+4. Define routing (React Router, Next.js, etc.)
+5. Document any deviations from frozen API (must be justified)
+
+Output format: PromptResult v1.2 (YAML)
+
+Gate target: GATE_5_CONTRACT_NO_DEVIATIONS
+
+Requirements:
+- Component tree must cover all screens from APP/02
+- State management must handle auth, data fetching, errors
+- API client should be generated from OpenAPI spec (e.g., openapi-generator)
+- NO deviations from frozen API without a Change Request (CR)
+- If you need API changes, add a change_request in state_updates
+
+Example context update:
+```yaml
+context_updates:
+  component_tree: |
+    <App>
+      <AuthProvider>
+        <Router>
+          <LoginPage />
+          <SignupPage />
+          <TodosPage>
+            <TodoList>
+              <TodoItem />
+            </TodoList>
+            <CreateTodoForm />
+          </TodosPage>
+        </Router>
+      </AuthProvider>
+    </App>
+    
+  state_management: |
+    - Auth state: React Context (user, token, login, logout)
+    - Todo state: React Query (server state, caching)
+    - UI state: Local component state (modals, forms)
+    
+  api_client: |
+    - Generated from openapi.yaml using openapi-generator
+    - Base URL: process.env.VITE_API_URL
+    - Auth: Axios interceptor adds Bearer token
+```
+
+Example Change Request (if API change needed):
+```yaml
+state_updates:
+  change_requests_added:
+    - id: "CR-001"
+      requester: "APP/05_frontend"
+      target_prompt: "APP/04_data-api-contract"
+      change_type: "minor"
+      description: "Add pagination to GET /api/todos (limit, offset params)"
+      rationale: "Todo list can grow large; need pagination for performance"
+      compatibility: "minor"
+```
+
+Output ONLY valid YAML in PromptResult v1.2 format.
